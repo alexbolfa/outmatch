@@ -1,0 +1,24 @@
+name: Publish to PyPI
+
+on:
+  push:
+    tags:
+      - "v*" # Runs whenever you push a tag like v0.1.0
+
+jobs:
+  build-n-publish:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        
+      - name: Build and Publish
+        run: |
+          uv build
+          uv publish --trusted-publishing always
