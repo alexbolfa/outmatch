@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="620" height="180">
+  <style>
+    .t { font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace; font-size: 13px; }
+  </style>
+  <rect width="620" height="180" rx="10" fill="#22272e" stroke="#444c56" stroke-width="1"/>
+  <rect width="620" height="36" rx="10" fill="#2d333b"/>
+  <rect x="0" y="26" width="620" height="10" fill="#2d333b"/>
+  <circle cx="20" cy="18" r="6" fill="#f47067"/>
+  <circle cx="40" cy="18" r="6" fill="#e0823d"/>
+  <circle cx="60" cy="18" r="6" fill="#57ab5a"/>
+  <text x="310" y="22" text-anchor="middle" class="t" fill="#768390" font-size="12">tests/hello.om</text>
+
+  <text x="20" y="62" class="t" fill="#545d68">1</text>
+  <text x="20" y="82" class="t" fill="#545d68">2</text>
+  <text x="20" y="102" class="t" fill="#545d68">3</text>
+  <text x="20" y="122" class="t" fill="#545d68">4</text>
+  <text x="20" y="142" class="t" fill="#545d68">5</text>
+
+  <text x="44" y="62" class="t" fill="#545d68"># My first test</text>
+
+  <text x="44" y="102" class="t" fill="#adbac7">## greet user</text>
+  <text x="44" y="122" class="t" fill="#adbac7">  $ echo "Hello, world!"</text>
+  <text x="44" y="142" class="t" fill="#adbac7">  Hello, world!</text>
+</svg>

@@ -1,0 +1,22 @@
+## Missing output
+  $ echo "Hello world!"
+
+## Extra generated tests
+  $ cat tests/test_inputs/fruits.txt | @foreach @FRUIT
+    $ echo @FRUIT
+  apple
+    apple
+  banana
+    banana
+  cherry
+    cherry
+  ananas
+    ananas
+
+## Fewer generated tests
+  $ cat tests/test_inputs/fruits.txt | @foreach @FRUIT
+    $ echo @FRUIT
+  apple
+    apple
+  cherry
+    cherry

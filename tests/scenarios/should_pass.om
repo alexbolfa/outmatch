@@ -1,0 +1,25 @@
+## Hello!
+  $ echo Hello world!
+  Hello world!
+
+## Listing fruits
+  $ cat tests/test_inputs/fruits.txt | @foreach @FRUIT
+    $ cat tests/test_inputs/colors.txt | @foreach @COLOR
+      $ echo @COLOR @FRUIT
+
+  apple > red
+    red apple
+  apple > yellow
+    yellow apple
+  banana > red
+    red banana
+  banana > yellow
+    yellow banana
+  cherry > red
+    red cherry
+  cherry > yellow
+    yellow cherry
+
+## Printing commands
+  $ echo "$ echo hello"
+  $ echo hello

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="620" height="120">
+  <style>
+    .t { font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace; font-size: 13px; }
+  </style>
+  <rect width="620" height="120" rx="10" fill="#22272e" stroke="#444c56" stroke-width="1"/>
+  <rect width="620" height="36" rx="10" fill="#2d333b"/>
+  <rect x="0" y="26" width="620" height="10" fill="#2d333b"/>
+  <circle cx="20" cy="18" r="6" fill="#f47067"/>
+  <circle cx="40" cy="18" r="6" fill="#e0823d"/>
+  <circle cx="60" cy="18" r="6" fill="#57ab5a"/>
+  <text x="310" y="22" text-anchor="middle" class="t" fill="#768390" font-size="12">Terminal</text>
+
+  <text x="20" y="62" class="t" fill="#768390">$</text>
+  <text x="32" y="62" class="t" fill="#adbac7"> outmatch tests/</text>
+
+  <text x="20" y="96" class="t" fill="#57ab5a">8 passed</text>
+  <text x="95" y="96" class="t" fill="#adbac7">, 6 generated (8 total) in 0.02s</text>
+</svg>

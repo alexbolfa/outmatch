@@ -1,0 +1,25 @@
+[project]
+name = "outmatch"
+version = "0.1.0"
+description = "A modern Cram-like shell test runner"
+requires-python = ">=3.10"
+dependencies = []
+readme = "README.md"
+license = "MIT"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "Topic :: Software Development :: Testing",
+    "Programming Language :: Python :: 3",
+]
+
+[project.urls]
+Homepage = "https://github.com/alexdredmon/outmatch"
+
+[project.scripts]
+outmatch = "outmatch.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

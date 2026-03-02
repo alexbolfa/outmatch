@@ -1,0 +1,9 @@
+# Outmatch self-tests
+
+## should_pass passes
+  $ uv run outmatch tests/scenarios/should_pass.om
+  /passed.*total/
+
+## should_fail fails
+  $ uv run outmatch tests/scenarios/should_fail.om || true
+  /failed.*total/

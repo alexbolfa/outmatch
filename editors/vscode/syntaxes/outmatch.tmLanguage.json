@@ -1,0 +1,89 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Outmatch",
+  "scopeName": "source.outmatch",
+  "patterns": [
+    { "include": "#comment" },
+    { "include": "#generate-header" },
+    { "include": "#test-header" },
+    { "include": "#generate-pipeline" },
+    { "include": "#generate-command" },
+    { "include": "#command" },
+    { "include": "#exit-code" },
+    { "include": "#regex-match" },
+    { "include": "#glob-match" },
+    { "include": "#expected-output" }
+  ],
+  "repository": {
+    "comment": {
+      "match": "^#.*$",
+      "name": "comment.line.number-sign.outmatch"
+    },
+    "test-header": {
+      "match": "^(##)\\s+(?!generate:)(.*)$",
+      "captures": {
+        "1": { "name": "keyword.control.test.outmatch" },
+        "2": { "name": "entity.name.function.test.outmatch" }
+      }
+    },
+    "generate-header": {
+      "match": "^(## generate:)\\s*(.*)$",
+      "captures": {
+        "1": { "name": "keyword.control.generate.outmatch" },
+        "2": { "name": "entity.name.function.generate.outmatch" }
+      }
+    },
+    "generate-pipeline": {
+      "match": "^(  )(\\$)\\s+(.*?)(\\|)\\s+(@foreach)\\s+(.*)$",
+      "captures": {
+        "2": { "name": "keyword.operator.shell-prompt.outmatch" },
+        "3": { "name": "string.unquoted.shell-command.outmatch" },
+        "4": { "name": "keyword.operator.pipe.outmatch" },
+        "5": { "name": "keyword.control.foreach.outmatch" },
+        "6": { "name": "string.unquoted.shell-command.outmatch" }
+      }
+    },
+    "command": {
+      "match": "^(  )(\\$)\\s+(.*)$",
+      "captures": {
+        "2": { "name": "keyword.operator.shell-prompt.outmatch" },
+        "3": { "name": "string.unquoted.shell-command.outmatch" }
+      }
+    },
+    "generate-command": {
+      "match": "^(    )(\\$)\\s+(.*)$",
+      "captures": {
+        "2": { "name": "keyword.operator.shell-prompt.outmatch" },
+        "3": { "name": "string.unquoted.shell-command.outmatch" }
+      }
+    },
+    "exit-code": {
+      "match": "^  (exit)\\s+(\\d+)\\s*$",
+      "captures": {
+        "1": { "name": "keyword.control.exit.outmatch" },
+        "2": { "name": "constant.numeric.exit-code.outmatch" }
+      }
+    },
+    "regex-match": {
+      "match": "^  (/)(.+)(/)$",
+      "captures": {
+        "1": { "name": "punctuation.definition.regex.begin.outmatch" },
+        "2": { "name": "string.regexp.outmatch" },
+        "3": { "name": "punctuation.definition.regex.end.outmatch" }
+      }
+    },
+    "glob-match": {
+      "match": "^  (glob:)\\s+(.*)$",
+      "captures": {
+        "1": { "name": "keyword.operator.glob.outmatch" },
+        "2": { "name": "string.interpolated.glob.outmatch" }
+      }
+    },
+    "expected-output": {
+      "match": "^  (?!\\$|/.*/$|glob:|exit\\s+\\d)(.+)$",
+      "captures": {
+        "1": { "name": "string.unquoted.expected-output.outmatch" }
+      }
+    }
+  }
+}
