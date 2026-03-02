@@ -1,6 +1,18 @@
 ## Missing output
   $ echo "Hello world!"
 
+
+## Wrong value
+  $ cat tests/test_inputs/fruits.txt | @foreach @FRUIT
+    $ echo @FRUIT
+  apple
+    apple
+  banana
+    ananas
+  cherry
+    cherry
+
+
 ## Extra generated tests
   $ cat tests/test_inputs/fruits.txt | @foreach @FRUIT
     $ echo @FRUIT

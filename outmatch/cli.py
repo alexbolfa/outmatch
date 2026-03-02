@@ -264,6 +264,7 @@ def main(argv: list[str] | None = None) -> None:
                 for r in by_name.values():
                     print(f"{_c(33, 'FIXED')}  {r.test.name}")
     else:
+        accepted_generated: set[int] = set()  # id() of accepted generated TestResults
         for r in results:
             if not r.passed:
                 _print_failure(r)
@@ -275,11 +276,39 @@ def main(argv: list[str] | None = None) -> None:
                         ch = open("/dev/tty").readline().strip().lower()
                     except OSError:
                         ch = "s"
-                    if ch == "a" and _fix_static(r):
-                        fixed += 1
-                        print(f"  {_c(33, 'ACCEPTED')}")
+                    if ch == "a":
+                        if r.test.is_generated:
+                            accepted_generated.add(id(r))
+                            fixed += 1
+                            print(f"  {_c(33, 'ACCEPTED')}")
+                        elif _fix_static(r):
+                            fixed += 1
+                            print(f"  {_c(33, 'ACCEPTED')}")
                     elif ch == "q":
                         break
+        if accepted_generated:
+            for gen in reversed(all_generates):
+                by_name = {r.test.name: r for r in results
+                           if r.test.is_generated and not r.test.stale
+                           and r.test.file == gen.file and r.test.line_number == gen.line_number}
+                if not by_name:
+                    continue
+                if not any(id(r) in accepted_generated for r in by_name.values()):
+                    continue
+                # For non-accepted tests, use their original expected output
+                # so _fix_generate doesn't overwrite them with actual output
+                patched = {}
+                for name, r in by_name.items():
+                    if id(r) in accepted_generated:
+                        patched[name] = r
+                    elif name in gen.inline_results:
+                        ir = gen.inline_results[name]
+                        exp_lines = [e.text if e.mode == "exact"
+                                     else f"/{e.text}/" if e.mode == "regex"
+                                     else f"glob: {e.text}" for e in ir[0]]
+                        patched[name] = TestResult(test=r.test, actual_output=exp_lines,
+                                                   actual_exit_code=ir[1])
+                _fix_generate(gen, patched)
 
     passed = sum(1 for r in results if r.passed)
     failed = len(results) - passed
