@@ -23,3 +23,14 @@
 ## Printing commands
   $ echo "$ echo hello"
   $ echo hello
+
+## Multiline command
+  $ echo \
+    hello \
+    world
+  hello world
+
+## Multiline with pipe
+  $ echo hello | \
+    tr h H
+  Hello

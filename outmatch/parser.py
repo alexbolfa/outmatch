@@ -19,6 +19,7 @@ class Command:
     command: str
     expected: list[ExpectedLine] = field(default_factory=list)
     expected_exit_code: int = 0
+    end_line_number: int = 0  # 1-indexed line after last command line (for multiline)
 
 
 @dataclass
@@ -75,6 +76,15 @@ class _OMParser:
         self.tests: list[TestCase] = []
         self.generates: list[GenerateBlock] = []
 
+    def _consume_continuation(self, first_line: str) -> str:
+        """Join backslash-continued lines into a single command string."""
+        parts = [first_line]
+        while parts[-1].endswith("\\") and self.i < len(self.lines):
+            parts[-1] = parts[-1][:-1]
+            parts.append(self.lines[self.i].strip())
+            self.i += 1
+        return "".join(parts)
+
     def parse(self) -> tuple[list[TestCase], list[GenerateBlock]]:
         while self.i < len(self.lines):
             line = self.lines[self.i]
@@ -96,26 +106,26 @@ class _OMParser:
                 continue
             if not line.startswith("  $ "):
                 break
-            cmd_text = line[4:]
+            cmd_line_number = self.i + 1
+            self.i += 1
+            cmd_text = self._consume_continuation(line[4:])
             if foreach := _parse_foreach(cmd_text):
-                self._parse_generate(foreach, indent=2)
+                self._parse_generate(foreach, indent=2, line_number=cmd_line_number)
             else:
-                test = TestCase(name=name, file=self.filename, line_number=self.i + 1)
-                test.command = Command(line_number=self.i + 1, command=cmd_text)
-                self.i += 1
+                test = TestCase(name=name, file=self.filename, line_number=cmd_line_number)
+                test.command = Command(line_number=cmd_line_number, command=cmd_text, end_line_number=self.i + 1)
                 self._consume_expected(test.command, prefix="  ")
                 self.tests.append(test)
             return
 
-    def _parse_generate(self, foreach: tuple[str, str], indent: int):
+    def _parse_generate(self, foreach: tuple[str, str], indent: int, line_number: int):
         gen = GenerateBlock(
             pipeline=foreach[0],
             var_name=_extract_var(foreach[1]),
             name_template=foreach[1],
             file=self.filename,
-            line_number=self.i + 1,
+            line_number=line_number,
         )
-        self.i += 1
         self._parse_generate_body(gen, indent + 2)
         gen.results_start_line = self.i
         self._parse_inline_results(gen, indent)
@@ -132,21 +142,21 @@ class _OMParser:
             if not line.startswith(" " * indent):
                 break
             if line.startswith(prefix):
-                cmd_text = line[len(prefix) :]
+                cmd_line_number = self.i + 1
+                self.i += 1
+                cmd_text = self._consume_continuation(line[len(prefix):])
                 if foreach := _parse_foreach(cmd_text):
                     child = GenerateBlock(
                         pipeline=foreach[0],
                         var_name=_extract_var(foreach[1]),
                         name_template=foreach[1],
                         file=self.filename,
-                        line_number=self.i + 1,
+                        line_number=cmd_line_number,
                     )
-                    self.i += 1
                     self._parse_generate_body(child, indent + 2)
                     gen.children.append(child)
                     continue
-                gen.template_command = Command(line_number=self.i + 1, command=cmd_text)
-                self.i += 1
+                gen.template_command = Command(line_number=cmd_line_number, command=cmd_text, end_line_number=self.i + 1)
                 self._consume_expected(gen.template_command, prefix=" " * (indent + 2))
                 continue
             if not line.startswith(" " * (indent + 1)):

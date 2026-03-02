@@ -89,6 +89,7 @@ def _expand_generate(
                     line_number=tmpl.line_number, command=cmd_str,
                     expected=[ExpectedLine(e.text, e.mode) for e in tmpl.expected],
                     expected_exit_code=tmpl.expected_exit_code,
+                    end_line_number=tmpl.end_line_number,
                 ),
             )
             tests.append(tc)
@@ -169,7 +170,7 @@ def _fix_static(r: TestResult) -> bool:
         return False
     path = Path(r.test.file)
     lines = path.read_text().split('\n')
-    start = r.test.command.line_number  # line after command (0-indexed = line_number since it's 1-indexed)
+    start = r.test.command.end_line_number - 1  # 0-indexed line after last command line
     end = start
     while end < len(lines) and lines[end].strip() and lines[end].startswith('  ') and not lines[end].startswith('##'):
         end += 1
