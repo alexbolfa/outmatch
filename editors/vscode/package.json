@@ -2,7 +2,7 @@
   "name": "outmatch",
   "displayName": "Outmatch",
   "description": "Syntax highlighting for Outmatch (.om) test files",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "publisher": "outmatch",
   "engines": {
     "vscode": "^1.75.0"
