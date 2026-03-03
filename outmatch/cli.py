@@ -121,23 +121,50 @@ def _do_fix(results: list[TestResult], all_generates: list[GenerateBlock]) -> in
 def _do_interactive(
     results: list[TestResult], all_generates: list[GenerateBlock]
 ) -> int:
-    # Phase 1: prompt for each failure
+    failures = [r for r in results if not r.passed]
+    if not failures:
+        return 0
+
+    # Use alternate screen buffer like less
+    alt_console = Console(highlight=False)
     accepted: set[int] = set()
-    for r in results:
-        if r.passed:
-            continue
-        _print_failure(r)
-        console.print("  [bold]\\[a]ccept / \\[s]kip / \\[q]uit[/] ? ", end="")
-        try:
-            ch = click.getchar().lower()
-            console.print()
-        except (OSError, EOFError):
-            ch = "s"
-        if ch == "a":
-            accepted.add(id(r))
-            console.print("  [yellow]ACCEPTED[/]")
-        elif ch == "q":
-            break
+    sys.stdout.write("\033[?1049h")  # enter alt screen
+    sys.stdout.flush()
+    try:
+        for idx, r in enumerate(failures):
+            sys.stdout.write("\033[2J\033[H")  # clear screen, cursor to top
+            sys.stdout.flush()
+            alt_console.print(f"[dim]({idx + 1}/{len(failures)})[/]")
+            _print_failure(r)
+            alt_console.print(
+                "\n  [bold]\\[a]ccept / \\[s]kip / \\[q]uit[/] ? ", end=""
+            )
+
+            do_quit = False
+            while True:
+                try:
+                    ch = click.getchar().lower()
+                except (OSError, EOFError):
+                    ch = "s"
+
+                if ch == "a":
+                    accepted.add(id(r))
+                elif ch == "q":
+                    do_quit = True
+
+                if ch in "saq":
+                    break
+
+            if do_quit:
+                break
+    finally:
+        sys.stdout.write("\033[?1049l")  # leave alt screen
+        sys.stdout.flush()
+
+    if accepted:
+        for r in failures:
+            if id(r) in accepted:
+                console.print(f"[yellow]ACCEPTED[/]  {escape(r.test.name)}")
 
     if not accepted:
         return 0
