@@ -1,4 +1,4 @@
-"""Parser for .om test files."""
+"""Models and parser for .om test files."""
 
 from __future__ import annotations
 
@@ -12,6 +12,13 @@ class ExpectedLine:
     text: str
     mode: str = "exact"  # "exact", "regex", or "glob"
 
+    def format(self) -> str:
+        if self.mode == "regex":
+            return f"/{self.text}/"
+        if self.mode == "glob":
+            return f"glob: {self.text}"
+        return self.text
+
 
 @dataclass
 class Command:
@@ -19,7 +26,7 @@ class Command:
     command: str
     expected: list[ExpectedLine] = field(default_factory=list)
     expected_exit_code: int = 0
-    end_line_number: int = 0  # 1-indexed line after last command line (for multiline)
+    end_line_number: int = 0
 
 
 @dataclass
@@ -62,10 +69,17 @@ def _parse_foreach(text: str) -> tuple[str, str] | None:
     return None
 
 
-def _extract_var(template: str) -> str:
-    if m := _VAR_RE.search(template):
-        return m.group(0)
-    return "@ITEM"
+def _make_gen(
+    foreach: tuple[str, str], filename: str, line_number: int
+) -> GenerateBlock:
+    m = _VAR_RE.search(foreach[1])
+    return GenerateBlock(
+        pipeline=foreach[0],
+        var_name=m.group(0) if m else "@ITEM",
+        name_template=foreach[1],
+        file=filename,
+        line_number=line_number,
+    )
 
 
 class _OMParser:
@@ -77,7 +91,6 @@ class _OMParser:
         self.generates: list[GenerateBlock] = []
 
     def _consume_continuation(self, first_line: str) -> str:
-        """Join backslash-continued lines into a single command string."""
         parts = [first_line]
         while parts[-1].endswith("\\") and self.i < len(self.lines):
             parts[-1] = parts[-1][:-1]
@@ -119,13 +132,7 @@ class _OMParser:
             return
 
     def _parse_generate(self, foreach: tuple[str, str], indent: int, line_number: int):
-        gen = GenerateBlock(
-            pipeline=foreach[0],
-            var_name=_extract_var(foreach[1]),
-            name_template=foreach[1],
-            file=self.filename,
-            line_number=line_number,
-        )
+        gen = _make_gen(foreach, self.filename, line_number)
         self._parse_generate_body(gen, indent + 2)
         gen.results_start_line = self.i
         self._parse_inline_results(gen, indent)
@@ -146,13 +153,7 @@ class _OMParser:
                 self.i += 1
                 cmd_text = self._consume_continuation(line[len(prefix):])
                 if foreach := _parse_foreach(cmd_text):
-                    child = GenerateBlock(
-                        pipeline=foreach[0],
-                        var_name=_extract_var(foreach[1]),
-                        name_template=foreach[1],
-                        file=self.filename,
-                        line_number=cmd_line_number,
-                    )
+                    child = _make_gen(foreach, self.filename, cmd_line_number)
                     self._parse_generate_body(child, indent + 2)
                     gen.children.append(child)
                     continue
@@ -177,7 +178,6 @@ class _OMParser:
                 break
             item = line[len(item_indent) :]
             self.i += 1
-            # Use a temporary Command to collect expected lines
             tmp = Command(line_number=0, command="")
             self._consume_expected(tmp, prefix=output_indent)
             gen.inline_results[item] = (tmp.expected, tmp.expected_exit_code)

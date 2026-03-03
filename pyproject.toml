@@ -3,7 +3,7 @@ name = "outmatch"
 version = "0.2.0"
 description = "A modern Cram-like shell test runner"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = ["click", "rich"]
 readme = "README.md"
 license = "MIT"
 classifiers = [
