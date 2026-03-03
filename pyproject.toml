@@ -15,7 +15,7 @@ classifiers = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/alexdredmon/outmatch"
+Homepage = "https://github.com/alexbolfa/outmatch"
 
 [project.scripts]
 outmatch = "outmatch.cli:main"
