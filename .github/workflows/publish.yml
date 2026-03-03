@@ -2,8 +2,8 @@ name: Publish to PyPI
 
 on:
   push:
-    tags:
-      - "v*" # Runs whenever you push a tag like v0.1.0
+    branches:
+      - main
 
 jobs:
   build-n-publish:
@@ -18,6 +18,12 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v5
         
+      - name: Set dev version
+        run: |
+          BASE=$(python -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
+          N=${{ github.run_number }}
+          sed -i "s/^version = .*/version = \"${BASE}.dev${N}\"/" pyproject.toml
+
       - name: Build and Publish
         run: |
           uv build
